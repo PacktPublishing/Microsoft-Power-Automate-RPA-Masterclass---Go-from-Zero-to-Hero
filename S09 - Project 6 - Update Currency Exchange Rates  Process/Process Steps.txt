@@ -1,0 +1,14 @@
+Step 1 : Execute SQL Query to fetch the data
+
+Step 2 : For each row in table we receive, with veifiedCustomer value as 'Y'
+Do the following:
+
+Step 3: Hit Exchangesrate-api.com and fetch the exchange of transfer currency using base currency
+
+Step 4 : Extract th Transfer Currency rate
+
+Step 5 : Mutliply the above value with Amount column value to get the final amount to be transferred
+
+Step 6 : Execute Sql query to update the final amount into TransferAmount column
+
+Step 7 : Repeat the same for all the records

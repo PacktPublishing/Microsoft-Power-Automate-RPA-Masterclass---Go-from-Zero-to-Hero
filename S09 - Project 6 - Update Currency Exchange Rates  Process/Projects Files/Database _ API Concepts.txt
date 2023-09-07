@@ -1,0 +1,9 @@
+************API Concepts***********
+
+https://medium.com/star-gazers/understanding-apis-everything-you-need-to-know-about-apis-b0bf53db6adf
+
+https://www.educative.io/courses/web-application-software-architecture-101/qADAzX6yorR
+
+************DATABASE Concepts***********
+
+https://www.simplilearn.com/tutorials/sql-tutorial/what-is-sql#:~:text=SQL%20is%20used%20to%20create,extracting%20data%20in%20a%20database.

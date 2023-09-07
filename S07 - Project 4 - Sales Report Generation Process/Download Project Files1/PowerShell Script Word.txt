@@ -1,0 +1,39 @@
+$objWord = New-Object -ComObject word.application
+$objWord.Visible = $True
+$objDoc = $objWord.Documents.Open("C:\Users\User\Videos\Movavi Library\Power Automate Udemy\Project 3 - Sales Report Generation Process\Word_Files\Master_Template-%inputRow['Name']%.docx")
+$objSelection = $objWord.Selection
+
+function wordSearch($currentValue, $replaceValue){
+    $objSelection = $objWord.Selection
+    $FindText = $currentValue
+    $MatchCase = $false
+    $MatchWholeWord = $true
+    $MatchWildcards = $false
+    $MatchSoundsLike = $false
+    $MatchAllWordForms = $false
+    $Forward = $true
+    $wrap = $wdFindContinue
+    $wdFindContinue = 1
+    $Format = $false
+    $ReplaceWith = $hash[$value]
+    $ReplaceAll = 2
+
+    $objSelection.Find.Execute($FindText, $MatchCase, $MatchWholeWord, $MatchWildcards, $MatchSoundsLike, $MatchAllWordForms, $Forward, $wrap, $Format, $ReplaceWith, $ReplaceAll)
+    }
+
+$hash = @{"<Name>" = "%inputRow['Name']%"; "<Division>"="%inputRow['Division']%"; "<Sales>"="%inputRow['Sales']%"}
+
+foreach($value in $hash.Keys) {
+    $currentValue = $value
+    $replaceValue = $hash[$value]
+
+    wordSearch $currentValue $replaceValue
+
+    }
+    
+    # Save the document to disk and close it. CHange $filename path to suit your environment.
+    $filename = "C:\Users\User\Videos\Movavi Library\Power Automate Udemy\Project 3 - Sales Report Generation Process\Word_Files\Master_Template-%inputRow['Name']%.docx"
+    $objDoc.SaveAs([REF]$filename)
+    $objDoc.Close()
+
+$objWord.Application.Quit()

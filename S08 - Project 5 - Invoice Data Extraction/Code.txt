@@ -1,0 +1,24 @@
+Outlook.Launch Instance=> OutlookInstance
+SET InvoiceFolder TO $'''C:\\Users\\User\\Videos\\Movavi Library\\Power Automate Udemy\\Project 5 - Invoice Data Extraction\\Invoice'''
+Outlook.RetrieveEmailMessages.RetrieveEmailsAndSaveAttachments Instance: OutlookInstance Account: $'''sharathkumarraju@outlook.com''' MailFolder: $'''Inbox''' EmailsToRetrieve: Outlook.RetrieveMessagesMode.Unread MarkAsRead: True SubjectContains: $'''Invoices''' SaveAttachmentsInto: InvoiceFolder Messages=> RetrievedEmails
+Folder.GetFiles Folder: InvoiceFolder FileFilter: $'''*''' IncludeSubfolders: False FailOnAccessDenied: True SortBy1: Folder.SortBy.NoSort SortDescending1: False SortBy2: Folder.SortBy.NoSort SortDescending2: False SortBy3: Folder.SortBy.NoSort SortDescending3: False Files=> Files
+LOOP FOREACH CurrentItem IN Files
+    Pdf.ExtractTextFromPDF.ExtractText PDFFile: CurrentItem DetectLayout: False ExtractedText=> ExtractedPDFText
+    Display.ShowMessageDialog.ShowMessage Message: ExtractedPDFText Icon: Display.Icon.None Buttons: Display.Buttons.OK DefaultButton: Display.DefaultButton.Button1 IsTopMost: False ButtonPressed=> ButtonPressed
+    Text.ParseText.RegexParseForFirstOccurrence Text: ExtractedPDFText TextToFind: $'''([\\w\\-\\.]+@[\\w\\-\\.]+)+''' StartingPosition: 0 IgnoreCase: False OccurrencePosition=> Position Match=> emailID
+    Text.ParseText.RegexParseForFirstOccurrence Text: ExtractedPDFText TextToFind: $'''(Dr|Mrs?|Ms)\\.[A-Za-z]+''' StartingPosition: 0 IgnoreCase: False OccurrencePosition=> Position2 Match=> Name
+    Display.ShowMessageDialog.ShowMessage Message: $'''%emailID%
+
+%Name%''' Icon: Display.Icon.None Buttons: Display.Buttons.OK DefaultButton: Display.DefaultButton.Button1 IsTopMost: False ButtonPressed=> ButtonPressed2
+    IF (emailID <> '' AND Name <> '') = $'''True''' THEN
+        Outlook.SendEmailThroughOutlook.SendEmail Instance: OutlookInstance Account: $'''sharathkumarraju@outlook.com''' SendTo: emailID Subject: $'''Invoice May''' Body: $'''HI %Name%
+
+PFA''' IsBodyHtml: False Attachments: CurrentItem
+    ELSE IF (emailID = '' OR Name = '') = $'''True''' THEN
+        Outlook.SendEmailThroughOutlook.SendEmail Instance: OutlookInstance Account: $'''sharathkumarraju@outlook.com''' SendTo: $'''sharathkumarraju@gmail.com''' Subject: $'''Invoice May''' Body: $'''HI team
+
+PFA
+There is miossing value for email or name, please verify it manually''' IsBodyHtml: False Attachments: CurrentItem
+    END
+END
+Outlook.Close Instance: OutlookInstance

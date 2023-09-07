@@ -1,0 +1,28 @@
+Database.Connect ConnectionString: $'''DRIVER={SQL Server}; Server=LAPTOP-0LLKNMGR\\SQLEXPRESS; integrated security=true; Database=Master''' Connection=> SQLConnection
+Database.ExecuteSqlStatement.Execute Connection: SQLConnection Statement: $'''SELECT TOP (1000) [AccountNumber]
+      ,[TransactionNumber]
+      ,[VerifiedCustomer]
+      ,[BaseCurrency]
+      ,[Amount]
+      ,[TransferCurrency]
+      ,[TransferAmount]
+      ,[ModifiedDate]
+  FROM [ExchangeRates].[dbo].[TransactionTable]''' Timeout: 30 Result=> QueryResult
+LOOP FOREACH CurrentItem IN QueryResult
+    IF CurrentItem['VerifiedCustomer'] = $'''Y''' THEN
+        Display.ShowMessageDialog.ShowMessage Message: CurrentItem['AccountNumber'] Icon: Display.Icon.None Buttons: Display.Buttons.OK DefaultButton: Display.DefaultButton.Button1 IsTopMost: False ButtonPressed=> ButtonPressed
+        Web.InvokeWebService.InvokeWebService Url: $'''https://v6.exchangerate-api.com/v6/70c4c191bbff7106f62e4d74/latest/%CurrentItem['BaseCurrency']%''' Method: Web.Method.Get Accept: $'''application/json''' ContentType: $'''application/json''' ConnectionTimeout: 30 FollowRedirection: True ClearCookies: False FailOnErrorStatus: False EncodeRequestBody: True UserAgent: $'''Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.21) Gecko/20100312 Firefox/3.6''' Encoding: Web.Encoding.AutoDetect AcceptUntrustedCertificates: False ResponseHeaders=> WebServiceResponseHeaders Response=> WebServiceResponse StatusCode=> StatusCode
+        Display.ShowMessageDialog.ShowMessage Message: WebServiceResponse Icon: Display.Icon.None Buttons: Display.Buttons.OK DefaultButton: Display.DefaultButton.Button1 IsTopMost: False ButtonPressed=> ButtonPressed
+        Variables.ConvertJsonToCustomObject Json: WebServiceResponse CustomObject=> JsonAsCustomObject
+        SET transferCurrency TO CurrentItem['TransferCurrency']
+        Display.ShowMessageDialog.ShowMessage Message: JsonAsCustomObject['conversion_rates'][transferCurrency] Icon: Display.Icon.None Buttons: Display.Buttons.OK DefaultButton: Display.DefaultButton.Button1 IsTopMost: False ButtonPressed=> ButtonPressed2
+        SET exchangeAmount TO JsonAsCustomObject['conversion_rates'][transferCurrency]
+        SET finalTransferAmount TO exchangeAmount * CurrentItem['Amount']
+        Database.ExecuteSqlStatement.Execute Connection: SQLConnection Statement: $'''UPDATE [ExchangeRates].[dbo].[TransactionTable]
+SET TransferAmount = \'%finalTransferAmount%\', ModifiedDate= GETDATE()
+WHERE AccountNumber = \'%CurrentItem['AccountNumber']%\';''' Timeout: 30 Result=> QueryResult2
+    ELSE IF CurrentItem['VerifiedCustomer'] = $'''N''' THEN
+        Display.ShowMessageDialog.ShowMessage Message: $'''Not a verified customer''' Icon: Display.Icon.None Buttons: Display.Buttons.OK DefaultButton: Display.DefaultButton.Button1 IsTopMost: False ButtonPressed=> ButtonPressed3
+    END
+END
+Database.Close Connection: SQLConnection

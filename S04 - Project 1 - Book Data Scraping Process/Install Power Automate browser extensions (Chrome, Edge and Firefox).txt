@@ -1,0 +1,5 @@
+Install Power Automate browser extensions(Chrome, Edge and Firefox)
+
+Please make sure that you Install Power Automate browser extensions, if not installed already :
+
+https://learn.microsoft.com/en-us/power-automate/desktop-flows/install-browser-extensions

@@ -1,0 +1,8 @@
+*****Windows Authentication connection string*******
+
+
+DRIVER={SQL Server}; Server=LAPTOP-0LLKNMGR\SQLEXPRESS; integrated security=true; Database=ExchangeRates
+
+*****SQL Server Authentication connection string*******
+
+DRIVER={SQL Server}; Server=LAPTOP-0LLKNMGR\SQLEXPRESS;Database=ExchangeRates; User ID=myUserName; Password=myPassword
